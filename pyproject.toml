@@ -16,6 +16,12 @@ fastapi = "^0.115.6"
 alembic = "^1.14.0"
 asyncpg = "^0.30.0"
 greenlet = "^3.1.1"
+uvicorn = "^0.34.0"
+
+[tool.ruff]
+line-length = 160
+fix = true  # 开启自动修复功能
+
 
 [build-system]
 requires = ["poetry-core"]

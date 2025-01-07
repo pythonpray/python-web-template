@@ -1,9 +1,13 @@
 from typing import List
-from sqlalchemy.orm import Session
-from fastapi import HTTPException
 
-from repo.course_repo import CourseRepository, StudentRepository, EnrollmentRepository
-from repo.models import Course, Enrollment
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
+
+from src.repo.course_repo import CourseRepository
+from src.repo.enrollment_repo import EnrollmentRepository
+from src.repo.models.course import Course
+from src.repo.models.enrollments import Enrollment
+from src.repo.student_repo import StudentRepository
 
 
 class CourseService:
@@ -38,16 +42,12 @@ class CourseService:
             raise HTTPException(status_code=400, detail="Already enrolled in this course")
 
         # 创建选课记录
-        enrollment = Enrollment(
-            student_id=student_id,
-            course_id=course_id,
-            status="enrolled"
-        )
+        enrollment = Enrollment(student_id=student_id, course_id=course_id, status="enrolled")
         self.enrollment_repo.create(enrollment)
-        
+
         # 更新课程当前学生数
         self.course_repo.increment_student_count(course_id)
-        
+
         return enrollment
 
     def drop_course(self, student_id: int, course_id: int):
@@ -57,6 +57,6 @@ class CourseService:
 
         enrollment.status = "dropped"
         self.enrollment_repo.update(enrollment)
-        
+
         # 更新课程当前学生数
         self.course_repo.decrement_student_count(course_id)

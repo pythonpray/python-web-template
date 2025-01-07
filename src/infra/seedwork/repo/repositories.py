@@ -1,5 +1,6 @@
+import abc
 import asyncio
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 from functools import wraps
 from typing import Generic, List, TypeVar, Type, Optional, Dict
 
@@ -9,9 +10,9 @@ from src.infra.seedwork.repo.models import BasicModel
 from src.infra.seedwork.service.entities import BaseEntity
 
 
-ModelType = TypeVar('ModelType', bound=BasicModel)
-CreateSchema = TypeVar('CreateSchema', bound=BaseEntity)
-UpdateSchema = TypeVar('UpdateSchema', bound=BaseEntity)
+ModelType = TypeVar("ModelType", bound=BasicModel)
+CreateSchema = TypeVar("CreateSchema", bound=BaseEntity)
+UpdateSchema = TypeVar("UpdateSchema", bound=BaseEntity)
 
 
 def ensure_sync(func):
@@ -24,7 +25,7 @@ def ensure_sync(func):
     return wrapper
 
 
-class BaseSQLAlchemy(metaclass=ABCMeta):
+class BaseSQLAlchemy(abc.ABC):
     def __init__(self, session=None):
         self.session = session
 
@@ -37,40 +38,32 @@ class BaseSQLAlchemy(metaclass=ABCMeta):
                 data.pop(k)
         return data
 
-    def sync_get(self, _id: int) -> ModelType:
-        ...
+    def sync_get(self, _id: int) -> ModelType: ...
 
-    def sync_gets(self, where_condition, order_by=None, offset=0, limit=10) -> List[Optional[ModelType]]:
-        ...
+    def sync_gets(self, where_condition, order_by=None, offset=0, limit=10) -> List[Optional[ModelType]]: ...
 
-    def sync_update(self, obj_in: UpdateSchema) -> ModelType:
-        ...
+    def sync_update(self, obj_in: UpdateSchema) -> ModelType: ...
 
-    async def gets(self, where_condition, order_by=None, offset=0, limit=10) -> List[Optional[ModelType]]:
-        ...
+    async def gets(self, where_condition, order_by=None, offset=0, limit=10) -> List[Optional[ModelType]]: ...
 
-    async def get_by_id(self, _id: int, ) -> ModelType:
-        ...
+    async def get_by_id(
+        self,
+        _id: int,
+    ) -> ModelType: ...
 
-    async def create(self, obj_in: CreateSchema) -> ModelType:
-        ...
+    async def create(self, obj_in: CreateSchema) -> ModelType: ...
 
-    async def update(self, obj_in: UpdateSchema) -> ModelType:
-        ...
+    async def update(self, obj_in: UpdateSchema) -> ModelType: ...
 
-    async def delete(self, _id: int) -> None:
-        ...
+    async def delete(self, _id: int) -> None: ...
 
-    async def count(self) -> int:
-        ...
+    async def count(self) -> int: ...
 
 
 class BaseRepo(BaseSQLAlchemy, Generic[ModelType, CreateSchema, UpdateSchema]):
-
     @property
     @abstractmethod
-    def model_class(self) -> Type[BasicModel]:
-        ...
+    def model_class(self) -> Type[BasicModel]: ...
 
     # 查询、新增 返回值都是实体类，基于pydantic的，不需要再从db_model转换成pydantic.BaseModel 或者dataclass
     # 且当前实体类中的字段与db_model中的字段是一一对应，实体类可直接使用 <ModelEntity.属性名> 获取属性
@@ -84,9 +77,9 @@ class BaseRepo(BaseSQLAlchemy, Generic[ModelType, CreateSchema, UpdateSchema]):
         return self.model_class.__table__.primary_key.columns.keys()
 
     def sync_entity_to_model(
-            self,
-            entity: BaseEntity,
-            model_class: Type[BasicModel],
+        self,
+        entity: BaseEntity,
+        model_class: Type[BasicModel],
     ) -> Optional[BasicModel]:
         params = [getattr(entity, key, None) for key in self.get_primary_keys]
         model = self.session.get(model_class, params)
@@ -95,9 +88,9 @@ class BaseRepo(BaseSQLAlchemy, Generic[ModelType, CreateSchema, UpdateSchema]):
             return model
 
     async def entity_to_model(
-            self,
-            entity: BaseEntity,
-            model_class: Type[BasicModel],
+        self,
+        entity: BaseEntity,
+        model_class: Type[BasicModel],
     ) -> Optional[BasicModel]:
         params = [getattr(entity, key, None) for key in self.get_primary_keys]
         model = await self.session.get(model_class, params)

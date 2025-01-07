@@ -5,8 +5,6 @@ from src.infra.seedwork.repo.models import BasicModel
 
 
 class Enrollment(BasicModel):
-    __tablename__ = "enrollments"
-
     student_id = Column(Integer, ForeignKey("student.id"))
     course_id = Column(Integer, ForeignKey("course.id"))
     status = Column(String(20), default="enrolled")  # enrolled, dropped
