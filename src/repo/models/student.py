@@ -11,8 +11,6 @@ class Student(BasicModel):
     只需要关心业务字段即可
     """
 
-    name = Column(String(100), nullable=False)
-    student_id = Column(String(20), unique=True, nullable=False)
-    email = Column(String(100))
-
+    name = Column(String(100), nullable=False, comment="姓名")
+    email = Column(String(255), nullable=False, unique=True, comment="邮箱")
     enrollments = relationship("Enrollment", back_populates="student")

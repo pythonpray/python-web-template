@@ -8,7 +8,7 @@ from sqlalchemy.orm import as_declarative, declared_attr
 logger = logging.getLogger(__name__)
 
 
-class TimestampMixin(object):
+class TimestampMixin:
     create_at = Column(DateTime, default=func.now(), nullable=False)
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
     is_deleted = Column(BOOLEAN, default=False, nullable=False)
@@ -42,7 +42,7 @@ class BasicModel(TimestampMixin):
 
     def __setattr__(self, key: str, value: Any):
         """设置属性时的钩子，用于处理JSON数据"""
-        if hasattr(self, 'json_columns'):
+        if hasattr(self, "json_columns"):
             if isinstance(value, (list, dict)) and key not in self.json_columns:
                 value = json.dumps(value, ensure_ascii=False)
         super().__setattr__(key, value)
@@ -50,6 +50,9 @@ class BasicModel(TimestampMixin):
     def to_dict(self) -> dict:
         """转换为字典"""
         return {"id": self.id}
+
+    def dict(self):
+        return self.raw_data
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}(id={self.id})"

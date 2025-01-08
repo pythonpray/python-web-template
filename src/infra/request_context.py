@@ -1,57 +1,48 @@
+import functools
+from contextlib import asynccontextmanager
 from contextvars import ContextVar
-from sqlalchemy.orm import Session
-
-from src.infra.seedwork.repo.session import get_session
+from typing import AsyncGenerator
+from uuid import uuid4
 
 
 class RequestContext:
-    _db_session: ContextVar[Session] = ContextVar("_db_session", default=None)
-    _is_in_transaction: ContextVar[bool] = ContextVar(
-        "_is_in_transaction", default=False
-    )
-    _user_session: ContextVar = ContextVar("_user_session", default={})
-
-    @property
-    def db_session(self) -> ContextVar[Session]:
-        """Get current db session as ContextVar"""
-        return self._db_session
-
-    @property
-    def is_in_transaction(self):
-        return self._is_in_transaction.get()
-
-    @is_in_transaction.setter
-    def is_in_transaction(self, value):
-        self._is_in_transaction.set(value)
-
-    @property
-    def user_session(self):
-        return self._user_session.get()
-
-    @user_session.setter
-    def user_session(self, session_info):
-        self._user_session.set(session_info)
-
-    def begin_request(self):
-        session = get_session()
-        session.begin()
-        self._db_session.set(session)
-
-    def end_request(self, commit=False):
-        session = self.db_session.get()
-        if session:
-            if commit:
-                session.commit()
-            else:
-                session.rollback()
-
-    def __enter__(self):
-        self.begin_request()
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        commit = exc_type is None
-        self.end_request(commit=commit)
+    # 上下文变量
+    request_id_ctx: ContextVar[str] = ContextVar("request_id")
+    is_in_transaction_ctx: ContextVar[bool] = ContextVar("is_in_transaction", default=False)
+    user_session_ctx: ContextVar[dict] = ContextVar("user_session", default={})
 
 
-request_context = RequestContext()
+req_context = RequestContext()
+
+
+@asynccontextmanager
+async def request_context() -> AsyncGenerator:
+    # 生成请求ID
+    request_id = str(uuid4())
+    request_token = req_context.request_id_ctx.set(request_id)
+
+    try:
+        yield req_context
+    finally:
+        # 清理上下文变量
+        req_context.request_id_ctx.reset(request_token)
+        req_context.user_session_ctx.set({})  # 重置用户会话
+        req_context.is_in_transaction_ctx.set(False)  # 重置事务状态
+
+
+def transaction(f):
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        if req_context.is_in_transaction_ctx.get():
+            return f(*args, **kwargs)
+        transaction_token = req_context.is_in_transaction_ctx.set(True)
+
+        try:
+            ret = f(*args, **kwargs)
+            return ret
+        except Exception as e:
+            raise e
+        finally:
+            req_context.is_in_transaction_ctx.reset(transaction_token)
+
+    return wrapper

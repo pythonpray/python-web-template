@@ -1,33 +1,30 @@
 from typing import List, Optional
 
-from sqlalchemy import and_
+from sqlalchemy import and_, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.infra.seedwork.repo.repositories import BaseRepo
 from src.repo.models.enrollments import Enrollment
 
 
 class EnrollmentRepository(BaseRepo):
-    def __init__(self, session):
+    def __init__(self, session: AsyncSession):
         super().__init__(session)
 
     @property
     def model_class(self):
         return Enrollment
 
-    def get_student_enrollments(self, student_id: int) -> List[Enrollment]:
-        return (
-            self.session.query(Enrollment)
-            .filter(and_(Enrollment.student_id == student_id, Enrollment.is_deleted.is_(False), Enrollment.status == "enrolled"))
-            .all()
-        )
+    async def get_student_enrollments(self, student_id: int) -> List[Enrollment]:
+        query = select(Enrollment).where(and_(Enrollment.student_id == student_id, Enrollment.is_deleted.is_(False), Enrollment.status == "enrolled"))
+        result = await self.session.execute(query)
+        return list(result.scalars().all())
 
-    def get_enrollment(self, student_id: int, course_id: int) -> Optional[Enrollment]:
-        return (
-            self.session.query(Enrollment)
-            .filter(and_(Enrollment.student_id == student_id, Enrollment.course_id == course_id, Enrollment.is_deleted.is_(False)))
-            .first()
-        )
+    async def get_enrollment(self, student_id: int, course_id: int) -> Optional[Enrollment]:
+        query = select(Enrollment).where(and_(Enrollment.student_id == student_id, Enrollment.course_id == course_id, Enrollment.is_deleted.is_(False)))
+        result = await self.session.execute(query)
+        return result.scalar_one_or_none()
 
-    def is_student_enrolled(self, student_id: int, course_id: int) -> bool:
-        enrollment = self.get_enrollment(student_id, course_id)
+    async def is_student_enrolled(self, student_id: int, course_id: int) -> bool:
+        enrollment = await self.get_enrollment(student_id, course_id)
         return enrollment is not None and enrollment.status == "enrolled"

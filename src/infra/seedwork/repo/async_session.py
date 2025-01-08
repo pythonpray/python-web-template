@@ -1,5 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 
+from src.infra.logger import app_logger
+
 from src.settings.config import get_settings
 
 database = get_settings().database
@@ -11,4 +13,11 @@ async_session = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_c
 
 async def get_session() -> AsyncSession:
     async with async_session() as session:
-        yield session
+        try:
+            yield session
+            await session.commit()
+        except Exception as e:
+            await session.rollback()
+            app_logger.exception(e)
+        finally:
+            await session.close()

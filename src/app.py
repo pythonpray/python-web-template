@@ -11,6 +11,7 @@ from fastapi import FastAPI
 
 from src.api import api_router
 from src.settings.config import get_settings
+from api.middleware import load_middleware
 
 config = get_settings()
 
@@ -20,10 +21,6 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator:
     # Startup
     yield
     # shutdown
-
-
-def load_middleware(app: FastAPI):
-    pass
 
 
 def create_app() -> FastAPI:
