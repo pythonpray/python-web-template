@@ -21,5 +21,5 @@ class ResponseHandler:
         return AppResponse(data=data, message=message)
 
     @staticmethod
-    def error(data: Any = None, message: str = "error") -> AppResponse:
-        return AppResponse(data=data, message=message)
+    def error(data: Any = None, message: str = "error", code=500) -> AppResponse:
+        return AppResponse(data=data, message=message, code=code)

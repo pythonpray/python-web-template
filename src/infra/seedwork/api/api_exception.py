@@ -1,25 +1,36 @@
+from typing import Any
+
+from fastapi import HTTPException
+from src.infra.logger import app_logger
 
 
+class ApiException(HTTPException):
+    error_code: int = 500
 
-class BadRequest(Exception):
-    def __init__(self, message, error_code=400):
-        super().__init__(message)  # 调用父类的构造函数并传递异常消息
-        self.error_code = error_code  # 添加自定义属性 error_code
-        self.message = message  # 添加自定义属性 message
-        self.status_code = 400  # 添加自定义属性 status_code
-
-    def log_error(self):
-        # 添加自定义方法来记录错误
-        logger.warning(f"{self.__class__.__name__} ({self.error_code}): {self.args[0]}")
+    def __init__(self, *args: Any) -> None:
+        super().__init__(status_code=self.error_code, detail=str(args[0]) if args else None)
+        app_logger.warning(f"{self.__class__.__name__} ({self.error_code}): {self.args[0]}")
 
 
-class Forbidden(Exception):
-    def __init__(self, message, error_code=403):
-        super().__init__(message)  # 调用父类的构造函数并传递异常消息
-        self.error_code = error_code  # 添加自定义属性 error_code
-        self.message = message  # 添加自定义属性 message
-        self.status_code = 403  # 添加自定义属性 status_code
+class BadRequestException(ApiException):
+    error_code = 400
 
-    def log_error(self):
-        # 添加自定义方法来记录错误
-        logger.warning(f"{self.__class__.__name__} ({self.error_code}): {self.args[0]}")
+
+class UnauthorizedException(ApiException):
+    error_code = 401
+
+    def __init__(self, *args: Any) -> None:
+        super().__init__(*args)
+        app_logger.warning(f"{self.__class__.__name__} ({self.error_code}): {self.args[0]}")
+
+
+class NotFoundException(ApiException):
+    error_code = 404
+
+
+class ConflictException(ApiException):
+    error_code = 409
+
+
+class InternalServerErrorException(ApiException):
+    error_code = 500
