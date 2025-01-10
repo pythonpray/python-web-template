@@ -11,7 +11,9 @@ class DefaultJsonEncoder(JSONEncoder):
     """如果是用fastapi框架的话,其实可以用
     from fastapi.encoders import jsonable_encoder
     去替代这个自定义类,毕竟有现成的,谁他喵的还自己写啊
+    已经写了就放进来吧
     """
+
     def default(self, obj):
         if isinstance(obj, (int64, int32)):  # type: ignore
             return int(obj)
