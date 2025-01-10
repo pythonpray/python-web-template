@@ -3,12 +3,12 @@ from typing import List
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.repo.course_repo import CourseRepository
-from src.repo.enrollment_repo import EnrollmentRepository
-from src.repo.models.course import Course
-from src.repo.models.enrollments import Enrollment
-from src.repo.models.student import Student
-from src.repo.student_repo import StudentRepository
+from domain.course.course_repo import CourseRepository
+from domain.course.enrollment_repo import EnrollmentRepository
+from infra.models.course import Course
+from infra.models.enrollments import Enrollment
+from infra.models.student import Student
+from domain.user.student_repo import StudentRepository
 
 
 class CourseService:
@@ -34,6 +34,13 @@ class CourseService:
         student = Student(name=name, email=email)
         stuent = await self.student_repo.create(student)
         return stuent
+
+    async def list_students(self) -> List[Student]:
+        return await self.student_repo.gets(where_condition=Student.is_deleted.is_(False))
+
+    async def get_student(self, student_id: int) -> Student:
+        s = await self.student_repo.get_by_id(student_id)
+        return s
 
     async def get_available_courses(self) -> List[Course]:
         return await self.course_repo.get_available_courses()

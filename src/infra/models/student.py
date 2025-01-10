@@ -1,7 +1,6 @@
 from sqlalchemy import Column, String
-from sqlalchemy.orm import relationship
 
-from src.infra.seedwork.repo.models import BasicModel
+from infra.seedwork.repo.model_base import BasicModel
 
 
 class Student(BasicModel):
@@ -13,4 +12,4 @@ class Student(BasicModel):
 
     name = Column(String(100), nullable=False, comment="姓名")
     email = Column(String(255), nullable=False, unique=True, comment="邮箱")
-    enrollments = relationship("Enrollment", back_populates="student")
+    # enrollments = relationship("Enrollment", back_populates="student")

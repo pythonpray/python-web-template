@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import relationship
 
-from src.infra.seedwork.repo.models import BasicModel
+from infra.seedwork.repo.model_base import BasicModel
 
 
 class Course(BasicModel):
@@ -11,4 +10,4 @@ class Course(BasicModel):
     max_students = Column(Integer, default=50)
     current_students = Column(Integer, default=0)
 
-    enrollments = relationship("Enrollment", back_populates="course")
+    # enrollments = relationship("Enrollment", back_populates="course")

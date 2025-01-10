@@ -1,8 +1,4 @@
-from pydantic import BaseModel
-
-
-class BaseScheme(BaseModel):
-    pass
+from infra.seedwork.service.entities import BaseScheme
 
 
 class RequestScheme(BaseScheme):
@@ -10,5 +6,4 @@ class RequestScheme(BaseScheme):
 
 
 class RespScheme(BaseScheme):
-    class Config:
-        from_attributes = True
+    pass

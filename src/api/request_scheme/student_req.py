@@ -22,3 +22,7 @@ class CreateCourseReq(RequestScheme):
 class CreateStudentReq(RequestScheme):
     name: str
     email: str
+
+
+class UpdateStudentReq(CreateStudentReq):
+    id: int

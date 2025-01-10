@@ -1,10 +1,10 @@
-from typing import List, Optional
+from typing import List, Optional, Type
 
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.infra.seedwork.repo.repositories import BaseRepo
-from src.repo.models.enrollments import Enrollment
+from infra.models.enrollments import Enrollment
 
 
 class EnrollmentRepository(BaseRepo):
@@ -12,7 +12,7 @@ class EnrollmentRepository(BaseRepo):
         super().__init__(session)
 
     @property
-    def model_class(self):
+    def model_class(self) -> Type[Enrollment]:
         return Enrollment
 
     async def get_student_enrollments(self, student_id: int) -> List[Enrollment]:

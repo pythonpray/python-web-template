@@ -1,10 +1,10 @@
-from typing import List, Optional
+from typing import List, Optional, Type
 
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.infra.seedwork.repo.repositories import BaseRepo
-from src.repo.models.course import Course
+from infra.models.course import Course
 
 
 class CourseRepository(BaseRepo):
@@ -12,7 +12,7 @@ class CourseRepository(BaseRepo):
         super().__init__(session)
 
     @property
-    def model_class(self):
+    def model_class(self) -> Type[Course]:
         return Course
 
     async def get_available_courses(self) -> List[Course]:
