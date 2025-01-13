@@ -9,6 +9,7 @@ from infra.models.course import Course
 from infra.models.enrollments import Enrollment
 from infra.models.student import Student
 from domain.user.student_repo import StudentRepository
+from infra.seedwork.domain.entities import BaseEntity
 
 
 class CourseService:
@@ -24,13 +25,12 @@ class CourseService:
         self.student_repo = StudentRepository(session)
         self.enrollment_repo = EnrollmentRepository(session)
 
-    async def create_course(self, name: str, max_students: int) -> Course:
+    async def create_course(self, name: str, max_students: int) -> BaseEntity:
         """创建新课程"""
         course = Course(name=name, max_students=max_students, current_students=0)
-        course = await self.course_repo.create(course)
-        return course
+        return await self.course_repo.create(course)
 
-    async def create_student(self, name: str, email: str) -> Student:
+    async def create_student(self, name: str, email: str) -> BaseEntity:
         """创建新学生"""
         # 检查邮箱是否已被使用
         existing_student = await self.student_repo.get_student_by_email(email)
@@ -38,20 +38,18 @@ class CourseService:
             raise HTTPException(status_code=400, detail="Email already registered")
 
         student = Student(name=name, email=email)
-        stuent = await self.student_repo.create(student)
-        return stuent
+        return await self.student_repo.create(student)
 
-    async def list_students(self) -> List[Student]:
+    async def list_students(self) -> List[BaseEntity]:
         return await self.student_repo.gets(where_condition=Student.is_deleted.is_(False))
 
-    async def get_student(self, student_id: int) -> Student:
-        s = await self.student_repo.get_by_id(student_id)
-        return s
+    async def get_student(self, student_id: int) -> BaseEntity:
+        return await self.student_repo.get_by_id(student_id)
 
-    async def get_available_courses(self) -> List[Course]:
+    async def get_available_courses(self) -> List[BaseEntity]:
         return await self.course_repo.get_available_courses()
 
-    async def get_student_courses(self, student_id: int) -> List[Course]:
+    async def get_student_courses(self, student_id: int) -> List[BaseEntity]:
         # 检查学生是否存在
         student = await self.student_repo.get_student_by_id(student_id)
         if not student:

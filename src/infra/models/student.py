@@ -12,4 +12,3 @@ class Student(BasicModel):
 
     name = Column(String(100), nullable=False, comment="姓名")
     email = Column(String(255), nullable=False, unique=True, comment="邮箱")
-    # enrollments = relationship("Enrollment", back_populates="student")

@@ -43,7 +43,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         payload = JWTHandler.verify_token(token)
 
         async with request_context() as ctx:
-            ctx.user_session_ctx.set({"user": payload, "type": "api"})
+            ctx.user_session_ctx.set({"user": payload, "type": "oapi"})
             response = await call_next(request)
             response.headers["X-Request-Id"] = ctx.request_id_ctx.get()
             return response

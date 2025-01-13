@@ -9,5 +9,3 @@ class Course(BasicModel):
     teacher = Column(String(100))
     max_students = Column(Integer, default=50)
     current_students = Column(Integer, default=0)
-
-    # enrollments = relationship("Enrollment", back_populates="course")
