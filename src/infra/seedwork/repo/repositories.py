@@ -8,7 +8,7 @@ from sqlalchemy.orm import class_mapper, selectinload, noload
 
 from src.infra.request_context import transaction
 from infra.seedwork.repo.model_base import BasicModel
-from src.infra.seedwork.service.entities import BaseEntity
+from src.infra.seedwork.domain.entities import BaseEntity
 
 
 ModelType = TypeVar("ModelType", bound=BasicModel)

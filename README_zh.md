@@ -12,8 +12,9 @@
 
 DDD的架构设计有几个点我觉得在项目设计上很有用,
 1. domain的隔离,是做好业务拆分,为后续扩展做好贮备.
-service A 下面有repo A(管理 数据表table A的CRUD), service B 下有 repo B(管理 数据表table B的CRUD),如果是在A服务中需要更新TABLE B表,那么应该调用serviceB对外暴露的接口,而不是直接调用repo B或者直接操作table B的模型.
-2. domain event的设计同样如此, service A中如果涉及到 serviceB的业务逻辑,最好的做法不是把 service B引入到A中,在service A中组装参数,调用serviceB, 而是通过事件event中去通知service B,需要做什么样的业务逻辑. 这个概念很重要,一个是A直接调用B,那么你就需要查看B的业务逻辑,另外一个是只需要通知B去做业务逻辑,service A根本不关系具体怎么做. (这个也是项目开发中很重要的合作概念,多个开发者协作,责任边界要划分清晰,开发者A说,我已经通知B去做了,B没做,那就去找B的问题呗,要不然,嘿嘿... serviceA是开发者A的新feature那你就得全权负责)
+domain A 下面有repo A(管理 数据表table A的CRUD), domain B 下有 repo B(管理 数据表table B的CRUD),如果是在A服务中需要更新TABLE B表,那么应该调用domain B对外暴露的接口,而不是直接调用repo B或者直接操作table B的模型.
+2. domain event的设计同样如此, domain A中如果涉及到 domain B的业务逻辑,最好的做法不是把 domain B引入到A中,在domain A中组装参数,调用domain B, 而是通过事件event中去通知domain B,需要做什么样的业务逻辑. 这个概念很重要,一个是A直接调用B,那么你就需要查看B的业务逻辑,另外一个是只需要通知B去做业务逻辑,domain A根本不关系具体怎么做. (这个也是项目开发中很重要的合作概念,多个开发者协作,责任边界要划分清晰,开发者A说,我已经通知B去做了,B没做,那就去找B的问题呗,要不然,嘿嘿... domain A是开发者A的新feature那你就得全权负责)
+3. 说了这么一大段,说的还是同一件事,就是各司其职,职责单一,不要越界.
 
 国内很多项目都是急于业务属性的,一般都要求敏捷开发,快速上线,也不是奔着开源来写,所以注定项目开始就是开始对功能,叠屎山,慢慢变得难以维护.
 当然python很适合做敏捷开发,解释性语言,语法简单,开发速度快成本低.

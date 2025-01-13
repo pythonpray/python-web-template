@@ -5,7 +5,7 @@ from src.infra.logger import app_logger
 
 
 class ApiException(HTTPException):
-    error_code: int = 500
+    error_code: int = 400
 
     def __init__(self, *args: Any) -> None:
         super().__init__(status_code=self.error_code, detail=str(args[0]) if args else None)

@@ -12,6 +12,12 @@ from domain.user.student_repo import StudentRepository
 
 
 class CourseService:
+    """domain的业务层,也就是domain对其他业务提供的调用入口,比如其他domain的调用
+    domain的组成,是有modules和repo组成.
+        repo主要涉及数据库的curd
+        modules 数据库无关的 业务封装模块
+    """
+
     def __init__(self, session: AsyncSession):
         self.session = session
         self.course_repo = CourseRepository(session)

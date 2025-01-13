@@ -20,7 +20,7 @@ class BaseEnum(enum.Enum):
             return None
 
     def __eq__(self, other):
-        return self.value == other or super(BaseEnum, self).__eq__(other)
+        return self.value == other or super().__eq__(other)
 
     def __hash__(self):
         return hash(self.value)
@@ -34,9 +34,7 @@ class BaseKvObject(BaseModel):
         arbitrary_types_allowed = True
 
     @classmethod
-    def from_dict(
-        cls, d: Optional[dict], adapter: Optional[Callable[[dict], dict]] = None
-    ):
+    def from_dict(cls, d: Optional[dict], adapter: Optional[Callable[[dict], dict]] = None):
         if d is None:
             return None
         if adapter:

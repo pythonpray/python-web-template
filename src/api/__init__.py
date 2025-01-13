@@ -10,4 +10,4 @@ for py in os.listdir("api"):
         m = __import__("api." + m_name, fromlist=[m_name])
         router_instance = m.router
         api_router.include_router(router_instance)
-        api_router.include_router(router_instance, prefix="oapi")
+        api_router.include_router(router_instance, prefix="/oapi")

@@ -3,7 +3,7 @@ from typing import List
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from domain.course.application import CourseService
+from domain.course.service import CourseService
 from src.api.request_scheme.student_req import CreateCourseReq
 from src.api.response_scheme.student_resp import CourseResp
 from src.infra.logger import app_logger

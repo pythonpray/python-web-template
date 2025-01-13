@@ -1,4 +1,4 @@
-from infra.seedwork.service.entities import BaseScheme
+from infra.seedwork.domain.entities import BaseScheme
 
 
 class RequestScheme(BaseScheme):

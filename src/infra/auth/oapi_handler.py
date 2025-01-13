@@ -1,7 +1,4 @@
 from src.infra.logger import app_logger
-from src.settings.config import get_settings
-
-oapi_auth = get_settings().oapi
 
 
 class OApiHandler:

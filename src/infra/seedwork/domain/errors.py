@@ -21,12 +21,8 @@ def abort(message: str, status_code: int = 422, *, err_code: int = 0):
     :param err_code: 业务错误码
     """
     status_code = 200 if err_code else status_code  # 前端判断业务err_code时，http code 只允许2xx
-    response = AbortResponse(
-        message=message, status_code=status_code, err_code=err_code
-    )
+    response = AbortResponse(message=message, status_code=status_code, err_code=err_code)
     raise AbortError(response)
-
-
 
 
 class BaseDomainError(Exception):
