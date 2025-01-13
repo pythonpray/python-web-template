@@ -1,11 +1,11 @@
-from .auth import Auth
-from .request_context import RequestContextMiddleware
+from .auth import AuthMiddleware
 from .exception_handler import GlobalExceptionHandler
 from fastapi import FastAPI
 
 
 def load_middleware(app: FastAPI):
     # 注意：中间件的添加顺序很重要
+    # 异常处理器必须是第一个
     app.add_middleware(GlobalExceptionHandler)
-    app.add_middleware(Auth)
-    app.add_middleware(RequestContextMiddleware)
+    # 统一的认证中间件
+    app.add_middleware(AuthMiddleware)

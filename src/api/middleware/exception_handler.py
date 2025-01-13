@@ -29,4 +29,4 @@ class GlobalExceptionHandler(BaseHTTPMiddleware):
             app_logger.error(
                 f"System error at {error_context['file']}:{error_context['line']} " f"in {error_context['function']} - {str(exc)}", extra=error_context
             )
-            return JSONResponse(status_code=500, content=ResponseHandler.error("SYSTEM_ERROR", "An unexpected error occurred").dict())
+            return JSONResponse(status_code=500, content=ResponseHandler.error("SYSTEM_ERROR", "嗯?我真的佛了,这也能报错?你是干啥吃的?").dict())

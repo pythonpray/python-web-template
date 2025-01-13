@@ -1,4 +1,5 @@
-import os, pathlib
+import os
+import pathlib
 from configparser import ConfigParser
 from functools import lru_cache
 
@@ -25,8 +26,15 @@ class DatabaseSettings(BaseModel):
         return f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.db}"
 
 
+class Auth(BaseModel):
+    jwt_secret: str
+    jwt_algorithm: str
+    access_token_expire_minutes: str
+
+
 class AppSettings(BaseSettings):
     database: DatabaseSettings
+    jwt: Auth
     model_config = {
         "extra": "allow",
     }
@@ -38,10 +46,7 @@ class AppSettings(BaseSettings):
             raise FileNotFoundError(f"Config file not found: {file_path}")
 
         config.read(file_path)
-        config_dict = {
-            section: dict(config.items(section))
-            for section in config.sections()
-        }
+        config_dict = {section: dict(config.items(section)) for section in config.sections()}
 
         return cls(**config_dict)
 
@@ -52,6 +57,6 @@ def get_settings():
     return app_config
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     settings = get_settings()
     print(settings)
