@@ -13,5 +13,5 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
                 return response
         except Exception:
             # 只记录日志，让异常继续传播到全局异常处理器
-            app_logger.exception("Error in request context")
+            app_logger.error("Error in request context middleware")
             raise
