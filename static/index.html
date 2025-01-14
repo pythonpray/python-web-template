@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程管理系统</title>
+    <link rel="stylesheet" href="//unpkg.com/element-plus/dist/index.css">
+    <script src="//unpkg.com/vue@3"></script>
+    <script src="//unpkg.com/element-plus"></script>
+    <script src="//unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+        }
+        .action-button {
+            margin-left: 10px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- 登录界面 -->
+        <div v-if="!isLoggedIn" class="login-container">
+            <el-card>
+                <template #header>
+                    <h2>登录</h2>
+                </template>
+                <el-form :model="loginForm" label-width="80px">
+                    <el-form-item label="用户名">
+                        <el-input v-model="loginForm.username"></el-input>
+                    </el-form-item>
+                    <el-form-item label="密码">
+                        <el-input v-model="loginForm.password" type="password"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="login">登录</el-button>
+                    </el-form-item>
+                </el-form>
+            </el-card>
+        </div>
+
+        <!-- 主界面 -->
+        <div v-else class="container">
+            <el-tabs>
+                <!-- 学生管理 -->
+                <el-tab-pane label="学生管理">
+                    <div class="section">
+                        <h3>创建学生</h3>
+                        <el-form :inline="true" :model="newStudent">
+                            <el-form-item label="姓名">
+                                <el-input v-model="newStudent.name"></el-input>
+                            </el-form-item>
+                            <el-form-item label="邮箱">
+                                <el-input v-model="newStudent.email"></el-input>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-button type="primary" @click="createStudent">创建</el-button>
+                            </el-form-item>
+                        </el-form>
+                    </div>
+
+                    <div class="section">
+                        <h3>查询学生</h3>
+                        <el-form :inline="true">
+                            <el-form-item label="学生ID">
+                                <el-input v-model="studentId" type="number"></el-input>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-button type="primary" @click="getStudent">查询</el-button>
+                            </el-form-item>
+                        </el-form>
+                        <el-card v-if="currentStudent">
+                            <template #header>
+                                <h4>学生信息</h4>
+                            </template>
+                            <p>ID: {{ currentStudent.id }}</p>
+                            <p>姓名: {{ currentStudent.name }}</p>
+                            <p>邮箱: {{ currentStudent.email }}</p>
+                        </el-card>
+                    </div>
+                </el-tab-pane>
+
+                <!-- 课程管理 -->
+                <el-tab-pane label="课程管理">
+                    <div class="section">
+                        <h3>创建课程</h3>
+                        <el-form :inline="true" :model="newCourse">
+                            <el-form-item label="课程名称">
+                                <el-input v-model="newCourse.name"></el-input>
+                            </el-form-item>
+                            <el-form-item label="最大学生数">
+                                <el-input v-model="newCourse.max_students" type="number"></el-input>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-button type="primary" @click="createCourse">创建</el-button>
+                            </el-form-item>
+                        </el-form>
+                    </div>
+
+                    <div class="section">
+                        <h3>可用课程</h3>
+                        <el-button type="primary" @click="getAvailableCourses">刷新课程列表</el-button>
+                        <el-table :data="availableCourses" style="margin-top: 20px">
+                            <el-table-column prop="id" label="ID" width="80"></el-table-column>
+                            <el-table-column prop="name" label="课程名称"></el-table-column>
+                            <el-table-column prop="max_students" label="最大学生数"></el-table-column>
+                            <el-table-column label="操作">
+                                <template #default="scope">
+                                    <el-popover placement="left" :width="400" trigger="click">
+                                        <template #reference>
+                                            <el-button type="primary">选课/退课</el-button>
+                                        </template>
+                                        <el-form :inline="true">
+                                            <el-form-item label="学生ID">
+                                                <el-input v-model="enrollStudentId" type="number"></el-input>
+                                            </el-form-item>
+                                            <el-form-item>
+                                                <el-button type="success" @click="enrollCourse(scope.row.id)">选课</el-button>
+                                                <el-button type="danger" @click="dropCourse(scope.row.id)">退课</el-button>
+                                            </el-form-item>
+                                        </el-form>
+                                    </el-popover>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </div>
+                </el-tab-pane>
+            </el-tabs>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref } = Vue
+        const { ElMessage } = ElementPlus
+
+        const app = createApp({
+            setup() {
+                // 状态
+                const isLoggedIn = ref(false)
+                const token = ref('')
+
+                // 登录表单
+                const loginForm = ref({
+                    username: '',
+                    password: ''
+                })
+
+                // 学生相关
+                const newStudent = ref({
+                    name: '',
+                    email: ''
+                })
+                const studentId = ref('')
+                const currentStudent = ref(null)
+
+                // 课程相关
+                const newCourse = ref({
+                    name: '',
+                    max_students: 30
+                })
+                const availableCourses = ref([])
+                const enrollStudentId = ref('')
+
+                // Axios 配置
+                const api = axios.create({
+                    baseURL: '/api',
+                    timeout: 5000
+                })
+
+                api.interceptors.request.use(config => {
+                    if (token.value) {
+                        config.headers.Authorization = `Bearer ${token.value}`
+                    }
+                    return config
+                })
+
+                api.interceptors.response.use(
+                    response => {
+                        if (response.data.code === 200) {
+                            return response.data.data
+                        } else {
+                            ElMessage.error(response.data.message || '操作失败')
+                            return Promise.reject(response.data.message)
+                        }
+                    },
+                    error => {
+                        ElMessage.error(error.response?.data?.message || '请求失败')
+                        return Promise.reject(error)
+                    }
+                )
+
+                // 方法
+                const login = async () => {
+                    try {
+                        const response = await api.post('/auth/login', loginForm.value)
+                        token.value = response.access_token
+                        isLoggedIn.value = true
+                        ElMessage.success('登录成功')
+                    } catch (error) {
+                        console.error('Login failed:', error)
+                    }
+                }
+
+                const createStudent = async () => {
+                    try {
+                        const response = await api.post('/user/student', newStudent.value)
+                        ElMessage.success('创建学生成功')
+                        newStudent.value = { name: '', email: '' }
+                    } catch (error) {
+                        console.error('Create student failed:', error)
+                    }
+                }
+
+                const getStudent = async () => {
+                    try {
+                        const response = await api.get(`/user/student/${studentId.value}`)
+                        currentStudent.value = response
+                    } catch (error) {
+                        console.error('Get student failed:', error)
+                        currentStudent.value = null
+                    }
+                }
+
+                const createCourse = async () => {
+                    try {
+                        await api.post('/courses/create', newCourse.value)
+                        ElMessage.success('创建课程成功')
+                        newCourse.value = { name: '', max_students: 30 }
+                        getAvailableCourses()
+                    } catch (error) {
+                        console.error('Create course failed:', error)
+                    }
+                }
+
+                const getAvailableCourses = async () => {
+                    try {
+                        const response = await api.get('/courses/available')
+                        availableCourses.value = response
+                    } catch (error) {
+                        console.error('Get courses failed:', error)
+                    }
+                }
+
+                const enrollCourse = async (courseId) => {
+                    try {
+                        await api.post(`/courses/${courseId}/enroll/${enrollStudentId.value}`)
+                        ElMessage.success('选课成功')
+                        getAvailableCourses()
+                    } catch (error) {
+                        console.error('Enroll course failed:', error)
+                    }
+                }
+
+                const dropCourse = async (courseId) => {
+                    try {
+                        await api.post(`/courses/${courseId}/drop/${enrollStudentId.value}`)
+                        ElMessage.success('退课成功')
+                        getAvailableCourses()
+                    } catch (error) {
+                        console.error('Drop course failed:', error)
+                    }
+                }
+
+                return {
+                    isLoggedIn,
+                    loginForm,
+                    newStudent,
+                    studentId,
+                    currentStudent,
+                    newCourse,
+                    availableCourses,
+                    enrollStudentId,
+                    login,
+                    createStudent,
+                    getStudent,
+                    createCourse,
+                    getAvailableCourses,
+                    enrollCourse,
+                    dropCourse
+                }
+            }
+        })
+
+        app.use(ElementPlus)
+        app.mount('#app')
+    </script>
+</body>
+</html>

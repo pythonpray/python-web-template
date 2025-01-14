@@ -16,12 +16,12 @@ class LoginRequest(BaseModel):
     password: str
 
 
-class Token(BaseModel):
+class TokenResponse(BaseModel):
     access_token: str
     token_type: str
 
 
-@router.post("/login", response_model=AppResponse[Token])
+@router.post("/login", response_model=AppResponse[TokenResponse])
 async def login(request: LoginRequest, session: AsyncSession = Depends(get_session)):
     """
     用户登录接口
@@ -35,7 +35,7 @@ async def login(request: LoginRequest, session: AsyncSession = Depends(get_sessi
         access_token = JWTHandler.create_access_token(data={"sub": request.username})
 
         app_logger.info(f"User {request.username} logged in successfully")
-        return ResponseHandler.success(Token(access_token=access_token, token_type="bearer"))
+        return ResponseHandler.success({"access_token": access_token, "token_type": "bearer"})
     except Exception as e:
         app_logger.error(f"Login failed for user {request.username}: {str(e)}")
         raise

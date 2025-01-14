@@ -10,7 +10,7 @@ from src.infra.request_context import request_context
 from src.infra.seedwork.api.api_exception import UnauthorizedException
 
 # 不需要验证的路径
-EXEMPT_PATHS = ["/auth/login", "/docs", "/openapi.json"]
+EXEMPT_PATHS = ["/api/auth/login", "/docs", "/openapi.json", "/", "/static", "/favicon.ico"]
 
 
 class AuthMiddleware(BaseHTTPMiddleware):
@@ -18,65 +18,60 @@ class AuthMiddleware(BaseHTTPMiddleware):
         try:
             path = request.url.path
 
-            # 检查是否是豁免路径
-            if self._is_exempt_path(path):
-                return await call_next(request)
+            # 所有请求都在request_context中处理
+            async with request_context() as ctx:
+                # 检查是否是豁免路径
+                if self._is_exempt_path(path):
+                    response = await call_next(request)
+                    response.headers["X-Request-Id"] = ctx.request_id_ctx.get()
+                    return response
 
-            # 根据路径前缀选择认证方式
-            if path.startswith("/oapi"):
-                return await self._handle_oapi_auth(request, call_next)
-            else:
-                return await self._handle_api_auth(request, call_next)
+                # 根据路径前缀选择认证方式
+                if path.startswith("/oapi"):
+                    # 验证OpenAPI密钥
+                    if not OApiHandler.verify_api_key(request):
+                        raise UnauthorizedException("Invalid API key")
+                    ctx.user_session_ctx.set({"user": "oapi_user", "type": "oapi"})
+                else:
+                    # 验证JWT Token
+                    token = self._get_token_from_header(request)
+                    if not token:
+                        raise UnauthorizedException("No token provided")
+                    payload = JWTHandler.verify_token(token)
+                    ctx.user_session_ctx.set({"user": payload, "type": "api"})
+
+                # 继续处理请求
+                response = await call_next(request)
+                response.headers["X-Request-Id"] = ctx.request_id_ctx.get()
+                return response
 
         except Exception as e:
             app_logger.error(f"Error in auth middleware: {str(e)}")
             raise
 
-    async def _handle_api_auth(self, request: Request, call_next):
-        """处理普通API认证"""
-        # 获取并验证token
-        token = self._get_token_from_header(request)
-        if not token:
-            raise UnauthorizedException("No token provided")
-
-        # 验证token
-        payload = JWTHandler.verify_token(token)
-
-        async with request_context() as ctx:
-            ctx.user_session_ctx.set({"user": payload, "type": "oapi"})
-            response = await call_next(request)
-            response.headers["X-Request-Id"] = ctx.request_id_ctx.get()
-            return response
-
-    @staticmethod
-    async def _handle_oapi_auth(request: Request, call_next):
-        """处理OpenAPI认证"""
-
-        if not OApiHandler.verify_api_key(request):
-            raise UnauthorizedException("Invalid API key")
-
-        async with request_context() as ctx:
-            ctx.user_session_ctx.set({"user: oapi_user"})
-            response = await call_next(request)
-            response.headers["X-Request-Id"] = ctx.request_id_ctx.get()
-            return response
-
     @staticmethod
     def _is_exempt_path(path: str) -> bool:
-        """检查是否是豁免路径"""
-        return any(path.endswith(exempt_path) for exempt_path in EXEMPT_PATHS)
+        """检查路径是否豁免认证"""
+        # 检查完全匹配的路径
+        if path in EXEMPT_PATHS:
+            return True
+
+        # 检查以豁免路径开头的路径（用于目录）
+        for exempt_path in EXEMPT_PATHS:
+            if path.startswith(exempt_path + "/"):
+                return True
+
+        return False
 
     @staticmethod
     def _get_token_from_header(request: Request) -> Optional[str]:
-        """从请求头中获取JWT token"""
-        authorization: str = request.headers.get("Authorization")
-        if not authorization:
+        """从请求头中获取token"""
+        auth_header = request.headers.get("Authorization")
+        if not auth_header:
             return None
 
-        try:
-            scheme, token = authorization.split()
-            if scheme.lower() != "bearer":
-                return None
-            return token
-        except ValueError:
+        parts = auth_header.split()
+        if len(parts) != 2 or parts[0].lower() != "bearer":
             return None
+
+        return parts[1]

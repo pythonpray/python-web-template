@@ -1,10 +1,13 @@
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 import asyncio
+import os
 
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 from starlette.responses import JSONResponse
 
 from src.api import api_router
@@ -41,6 +44,15 @@ def create_app() -> FastAPI:
 
         return JSONResponse(status_code=422, content=ResponseHandler.error("", msg, 422).dict())
 
+    # 根路由重定向到静态页面
+    @app.get("/")
+    async def root():
+        return RedirectResponse(url="/static/index.html")
+
+    # 挂载静态文件目录
+    static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
     load_middleware(app)
     app.include_router(api_router, tags=["api"], prefix=config.app.get("api_prefix"))
 
@@ -52,4 +64,5 @@ fastapi_app = create_app()
 
 if __name__ == "__main__":
     asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
+    print(f"项目在http://{config.app['host']}:{config.app['port']}搞起来了....")
     uvicorn.run("app:fastapi_app", host=config.app["host"], port=int(config.app["port"]), log_config=None, reload=False)

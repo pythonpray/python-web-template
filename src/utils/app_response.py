@@ -11,7 +11,7 @@ class AppResponse(BaseModel, Generic[T]):
     data: Optional[T] = None
     code: int = 200
     message: str = "success"
-    request_id: str = Field(default_factory=lambda: req_ctx.request_id_ctx.get(None))
+    request_id: Optional[str] = Field(default_factory=lambda: req_ctx.request_id_ctx.get())
     timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
 
 
