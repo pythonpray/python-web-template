@@ -10,7 +10,7 @@ from src.infra.request_context import request_context
 from src.infra.seedwork.api.api_exception import UnauthorizedException
 
 # 不需要验证的路径
-EXEMPT_PATHS = ["/auth/login", "/docs"]
+EXEMPT_PATHS = ["/auth/login", "/docs", "/openapi.json"]
 
 
 class AuthMiddleware(BaseHTTPMiddleware):
