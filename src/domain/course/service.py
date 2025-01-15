@@ -102,3 +102,22 @@ class CourseService:
 
         # 更新课程当前学生数
         await self.course_repo.decrement_student_count(course_id)
+
+    async def get_course_students(self, course_id: int) -> List[BaseEntity]:
+        """获取课程的所有在读学生"""
+        # 检查课程是否存在
+        course = await self.course_repo.get_course_by_id(course_id)
+        if not course:
+            raise HTTPException(status_code=404, detail="Course not found")
+
+        # 获取课程的所有选课记录
+        enrollments = await self.enrollment_repo.get_course_enrollments(course_id)
+
+        # 获取所有相关学生
+        students = []
+        for enrollment in enrollments:
+            if enrollment.status == "enrolled":  # 只返回在读学生
+                student = await self.student_repo.get_student_by_id(enrollment.student_id)
+                if student:
+                    students.append(student)
+        return students

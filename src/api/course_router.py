@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from domain.course.service import CourseService
 from src.api.request_scheme.student_req import CreateCourseReq
-from src.api.response_scheme.student_resp import CourseResp
+from src.api.response_scheme.student_resp import CourseResp, StudentResp
 from src.infra.logger import app_logger
 from src.infra.seedwork.repo.async_session import get_session
 from utils.app_response import ResponseHandler, AppResponse
@@ -31,6 +31,26 @@ async def get_available_courses(session: AsyncSession = Depends(get_session)):
     courses = await service.get_available_courses()
     app_logger.info(f"Found {len(courses)} available courses")
     return ResponseHandler.success(courses)
+
+
+@router.get("/student/{student_id}", response_model=AppResponse[List[CourseResp]])
+async def get_student_courses(student_id: int, session: AsyncSession = Depends(get_session)):
+    """获取学生已选课程列表"""
+    app_logger.info(f"Fetching courses for student {student_id}")
+    service = CourseService(session)
+    courses = await service.get_student_courses(student_id)
+    app_logger.info(f"Found {len(courses)} courses for student {student_id}")
+    return ResponseHandler.success(courses)
+
+
+@router.get("/{course_id}/students", response_model=AppResponse[List[StudentResp]])
+async def get_course_students(course_id: int, session: AsyncSession = Depends(get_session)):
+    """获取课程已选学生列表"""
+    app_logger.info(f"Fetching students for course {course_id}")
+    service = CourseService(session)
+    students = await service.get_course_students(course_id)
+    app_logger.info(f"Found {len(students)} students in course {course_id}")
+    return ResponseHandler.success(students)
 
 
 @router.post("/{course_id}/enroll/{student_id}", response_model=AppResponse)

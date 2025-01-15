@@ -76,6 +76,7 @@
                             </el-form-item>
                             <el-form-item>
                                 <el-button type="primary" @click="getStudent">查询</el-button>
+                                <el-button type="info" @click="getStudentCourses">查看已选课程</el-button>
                             </el-form-item>
                         </el-form>
                         <el-card v-if="currentStudent">
@@ -85,6 +86,18 @@
                             <p>ID: {{ currentStudent.id }}</p>
                             <p>姓名: {{ currentStudent.name }}</p>
                             <p>邮箱: {{ currentStudent.email }}</p>
+                        </el-card>
+                        <!-- 学生课程列表 -->
+                        <el-card v-if="studentCourses.length > 0" style="margin-top: 20px">
+                            <template #header>
+                                <h4>已选课程</h4>
+                            </template>
+                            <el-table :data="studentCourses">
+                                <el-table-column prop="id" label="ID" width="80"></el-table-column>
+                                <el-table-column prop="name" label="课程名称"></el-table-column>
+                                <el-table-column prop="max_students" label="最大学生数"></el-table-column>
+                                <el-table-column prop="current_students" label="当前学生数"></el-table-column>
+                            </el-table>
                         </el-card>
                     </div>
                 </el-tab-pane>
@@ -113,25 +126,37 @@
                             <el-table-column prop="id" label="ID" width="80"></el-table-column>
                             <el-table-column prop="name" label="课程名称"></el-table-column>
                             <el-table-column prop="max_students" label="最大学生数"></el-table-column>
+                            <el-table-column prop="current_students" label="当前学生数"></el-table-column>
                             <el-table-column label="操作">
                                 <template #default="scope">
-                                    <el-popover placement="left" :width="400" trigger="click">
-                                        <template #reference>
-                                            <el-button type="primary">选课/退课</el-button>
-                                        </template>
-                                        <el-form :inline="true">
-                                            <el-form-item label="学生ID">
-                                                <el-input v-model="enrollStudentId" type="number"></el-input>
-                                            </el-form-item>
-                                            <el-form-item>
-                                                <el-button type="success" @click="enrollCourse(scope.row.id)">选课</el-button>
-                                                <el-button type="danger" @click="dropCourse(scope.row.id)">退课</el-button>
-                                            </el-form-item>
-                                        </el-form>
-                                    </el-popover>
+                                    <el-button-group>
+                                        <el-popover placement="left" :width="400" trigger="click">
+                                            <template #reference>
+                                                <el-button type="primary">选课/退课</el-button>
+                                            </template>
+                                            <el-form :inline="true">
+                                                <el-form-item label="学生ID">
+                                                    <el-input v-model="enrollStudentId" type="number"></el-input>
+                                                </el-form-item>
+                                                <el-form-item>
+                                                    <el-button type="success" @click="enrollCourse(scope.row.id)">选课</el-button>
+                                                    <el-button type="danger" @click="dropCourse(scope.row.id)">退课</el-button>
+                                                </el-form-item>
+                                            </el-form>
+                                        </el-popover>
+                                        <el-button type="info" @click="getCourseStudents(scope.row.id)">查看学生</el-button>
+                                    </el-button-group>
                                 </template>
                             </el-table-column>
                         </el-table>
+                        <!-- 课程学生列表 -->
+                        <el-dialog v-model="showCourseStudents" title="已选学生列表" width="50%">
+                            <el-table :data="courseStudents">
+                                <el-table-column prop="id" label="ID" width="80"></el-table-column>
+                                <el-table-column prop="name" label="学生姓名"></el-table-column>
+                                <el-table-column prop="email" label="邮箱"></el-table-column>
+                            </el-table>
+                        </el-dialog>
                     </div>
                 </el-tab-pane>
             </el-tabs>
@@ -147,6 +172,7 @@
                 // 状态
                 const isLoggedIn = ref(false)
                 const token = ref('')
+                const showCourseStudents = ref(false)
 
                 // 登录表单
                 const loginForm = ref({
@@ -161,6 +187,7 @@
                 })
                 const studentId = ref('')
                 const currentStudent = ref(null)
+                const studentCourses = ref([])
 
                 // 课程相关
                 const newCourse = ref({
@@ -169,6 +196,7 @@
                 })
                 const availableCourses = ref([])
                 const enrollStudentId = ref('')
+                const courseStudents = ref([])
 
                 // Axios 配置
                 const api = axios.create({
@@ -230,6 +258,20 @@
                     }
                 }
 
+                const getStudentCourses = async () => {
+                    if (!studentId.value) {
+                        ElMessage.warning('请先输入学生ID')
+                        return
+                    }
+                    try {
+                        const response = await api.get(`/courses/student/${studentId.value}`)
+                        studentCourses.value = response
+                    } catch (error) {
+                        console.error('Get student courses failed:', error)
+                        studentCourses.value = []
+                    }
+                }
+
                 const createCourse = async () => {
                     try {
                         await api.post('/courses/create', newCourse.value)
@@ -270,20 +312,36 @@
                     }
                 }
 
+                const getCourseStudents = async (courseId) => {
+                    try {
+                        const response = await api.get(`/courses/${courseId}/students`)
+                        courseStudents.value = response
+                        showCourseStudents.value = true
+                    } catch (error) {
+                        console.error('Get course students failed:', error)
+                        courseStudents.value = []
+                    }
+                }
+
                 return {
                     isLoggedIn,
                     loginForm,
                     newStudent,
                     studentId,
                     currentStudent,
+                    studentCourses,
                     newCourse,
                     availableCourses,
                     enrollStudentId,
+                    courseStudents,
+                    showCourseStudents,
                     login,
                     createStudent,
                     getStudent,
+                    getStudentCourses,
                     createCourse,
                     getAvailableCourses,
+                    getCourseStudents,
                     enrollCourse,
                     dropCourse
                 }

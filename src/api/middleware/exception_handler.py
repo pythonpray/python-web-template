@@ -22,11 +22,7 @@ class GlobalExceptionHandlerMiddleware(BaseHTTPMiddleware):
             # 对于系统异常，记录更详细的信息
             error_location = traceback.extract_tb(exc.__traceback__)[-1]
             app_logger.error(
-                "System error at %s:%s in %s - %s",
-                error_location.filename,
-                error_location.lineno,
-                error_location.name,
-                str(exc),
+                f"System error at {error_location.filename}:{error_location.lineno} in {error_location.name} - {str(exc)}",
                 extra={
                     "path": request.url.path,
                     "method": request.method,

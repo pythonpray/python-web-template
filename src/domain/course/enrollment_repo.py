@@ -20,6 +20,12 @@ class EnrollmentRepository(BaseRepo):
         result = await self.session.execute(query)
         return list(result.scalars().all())
 
+    async def get_course_enrollments(self, course_id: int) -> List[Enrollment]:
+        """获取课程的所有选课记录"""
+        query = select(Enrollment).where(and_(Enrollment.course_id == course_id, Enrollment.is_deleted.is_(False), Enrollment.status == "enrolled"))
+        result = await self.session.execute(query)
+        return list(result.scalars().all())
+
     async def get_enrollment(self, student_id: int, course_id: int) -> Optional[Enrollment]:
         query = select(Enrollment).where(and_(Enrollment.student_id == student_id, Enrollment.course_id == course_id, Enrollment.is_deleted.is_(False)))
         result = await self.session.execute(query)
