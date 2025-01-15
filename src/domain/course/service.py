@@ -9,7 +9,7 @@ from infra.models.course import Course
 from infra.models.enrollments import Enrollment
 from infra.models.student import Student
 from domain.user.student_repo import StudentRepository
-from infra.seedwork.domain.entities import BaseEntity
+from infra.seedwork.domain.scheme import BaseEntity
 
 
 class CourseService:

@@ -142,6 +142,14 @@ DDD有几个点我是真心觉得好用：
 3. GlobalExceptionHandlerMiddleware统一异常处理,包括fastapi的异常和自定义的异常
 4. 
 
+### 关于api请求
+1. 用contextVar来管理请求上下文,每个请求分配request_id,记录user信息,在请求的生命周期内全局可用
+2. api入参的模型都用pydantic进行参数校验啊,别在router/Service写那些基础校验了,哥们儿
+3. api的返回值使用统一的数据结构AppResponse,包括code, message, data, request_id. 以及统一的handler,ResponseHandler.success(entity) ResponseHandler.error(entity)
+实际的序列化的逻辑交由fastapi的response model来实现即 @router.get("/student/{student_id}", response_model=AppResponse[StudentResp])
+虽然不指定response model也行,但是pydantic model毕竟可以加一层校验,还可以过过滤参数.比如有些字段没有在StudentResp声明,entity就算有字段也不会返回给前端,挺好
+
+
 ```text  access_log 记录的curl信息
 2025-01-15T14:57:00.239882+0800 - INFO - acess_log.py:42 - dispatch - Request as curl: curl -X GET http://127.0.0.1:8088/api/courses/3/students -H 'connection: keep-alive' -H 'sec-ch-ua-platform: "macOS"' -H 'authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTczNjkyNTI2MX0.73bUzIdIN0ckbWZ6EPsgEZBY2Md4Vv1dg-xINBU22SE' -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36' -H 'accept: application/json, text/plain, */*' -H 'sec-ch-ua: "Chromium";v="131", "Not_A Brand";v="24"' -H 'dnt: 1' -H 'sec-ch-ua-mobile: ?0' -H 'sec-fetch-site: same-origin' -H 'sec-fetch-mode: cors' -H 'sec-fetch-dest: empty' -H 'referer: http://127.0.0.1:8088/static/index.html' -H 'accept-encoding: gzip, deflate, br, zstd' -H 'accept-language: zh-CN,zh;q=0.9
 ```
@@ -168,4 +176,7 @@ DDD有几个点我是真心觉得好用：
 
 就到这里，各位老铁，江湖再见！ 😎
 
-
+## 其实还想在做点啥呢
+### todo list
+1. just file
+2. vercel
