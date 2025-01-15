@@ -140,7 +140,7 @@ DDD有几个点我是真心觉得好用：
 1. AccessLogMiddleware会记录所有请求的信息,工作还是要留痕的,并自动转成curl信息,如果真的报错,直接拿着curl信息可以很方便的本地模拟
 2. AuthMiddleware认证中间件,先基于jwt实现了一个日常api的auth,然后再对oapi实现了一个api_key的认证, 如果你觉得不够用就自己写吧,铁汁. [对了,这里默认实现了api/oapi的两套路由,分别配了不同的认证auth]
 3. GlobalExceptionHandlerMiddleware统一异常处理,包括fastapi的异常和自定义的异常
-4. 
+4. CORSMiddleware 跨域配置，具体的域名啥的,你自己搞呗
 
 ### 关于api请求
 1. 用contextVar来管理请求上下文,每个请求分配request_id,记录user信息,在请求的生命周期内全局可用
