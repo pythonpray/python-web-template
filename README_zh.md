@@ -161,6 +161,7 @@ DDD有几个点我是真心觉得好用：
 1. 在repository层,在create/update操作之前对pydantic模型->sqlalchemy orm模型的转换
 2. 同样的封装好的gets/get_by_id操作之后,查到的对象也是基于BaseEntity[pydantic]的对象,可以直接操作,不会影响orm对象.
 3. 实现Service和repo层的数据隔离
+4. 默认实现了 is_deleted, created_at, updated_at 三个必填字段,以及is_deleted的逻辑删除
 
 还有数据库的几个坑,也说明一下
 1. 首先我一直觉得少要用外键约束,级联操作,用起来是简单,很容易出问题. 所以得数据库关联字段得自己维护,你只有显式的写出来才说明你做了某些操作.要不后期定位问题的时候,就得花大时间去查了.
@@ -172,8 +173,3 @@ DDD有几个点我是真心觉得好用：
 都看到这里了,别忘了给个Star！
 
 就到这里，各位老铁，江湖再见！ 😎
-
-## 其实还想在做点啥呢
-### todo list
-1. just file
-2. vercel
