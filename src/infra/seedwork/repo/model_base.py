@@ -26,16 +26,10 @@ class Basic(CustomMixin):
 
     def set_data(self, data: dict):
         """设置对象的属性"""
-        # fields = [column.key for column in inspect(self.__class__).attrs]
         for k, v in data.items():
             if hasattr(self, k):
                 setattr(self, k, v)
         setattr(self, "updated_at", datetime.datetime.now())
-        # if k in fields and v != getattr(self, k):
-
-    # @classmethod
-    # def from_dict(cls, data: dict):
-    #     return cls(**data)
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}(id={self.id})"

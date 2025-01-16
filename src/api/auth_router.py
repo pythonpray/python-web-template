@@ -3,9 +3,9 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from infra.auth.jwt_handler import JWTHandler
-from src.infra.logger import app_logger
-from src.infra.seedwork.api.api_exception import UnauthorizedException
-from src.infra.seedwork.repo.async_session import get_session
+from infra.logger import app_logger
+from infra.seedwork.api.api_exception import UnauthorizedException
+from infra.seedwork.repo.async_session import get_session
 from utils.app_response import AppResponse, ResponseHandler
 
 router = APIRouter(prefix="/auth", tags=["auth"])

@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String
 
-from infra.seedwork.repo.model_base import BasicModel
+from src.infra.seedwork.repo.model_base import BasicModel
 
 
 class Course(BasicModel):

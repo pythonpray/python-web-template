@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, TypeVar, Generic, Optional
 
 from pydantic import BaseModel, Field
-from src.infra.request_context import req_ctx
+from infra.request_context import req_ctx
 
 T = TypeVar("T")
 

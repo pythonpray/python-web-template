@@ -3,11 +3,11 @@ from typing import Optional
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from src.infra.auth.jwt_handler import JWTHandler
-from src.infra.auth.oapi_handler import OApiHandler
-from src.infra.logger import app_logger
-from src.infra.request_context import request_context
-from src.infra.seedwork.api.api_exception import UnauthorizedException
+from infra.auth.jwt_handler import JWTHandler
+from infra.auth.oapi_handler import OApiHandler
+from infra.logger import app_logger
+from infra.request_context import request_context
+from infra.seedwork.api.api_exception import UnauthorizedException
 
 # 不需要验证的路径
 EXEMPT_PATHS = ["/api/auth/login", "/docs", "/openapi.json", "/", "/static", "/favicon.ico"]

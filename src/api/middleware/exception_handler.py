@@ -3,8 +3,8 @@ from fastapi import Request
 from starlette.responses import JSONResponse
 import traceback
 
-from src.infra.logger import app_logger
-from src.infra.seedwork.api.api_exception import ApiException
+from infra.logger import app_logger
+from infra.seedwork.api.api_exception import ApiException
 from utils.app_response import ResponseHandler
 
 

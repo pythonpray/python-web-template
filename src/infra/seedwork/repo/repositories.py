@@ -6,9 +6,9 @@ from sqlalchemy import select, update, delete, and_
 from sqlalchemy.exc import DatabaseError
 from sqlalchemy.orm import class_mapper, selectinload, noload
 
-from src.infra.request_context import transaction
+from infra.request_context import transaction
 from infra.seedwork.repo.model_base import BasicModel
-from src.infra.seedwork.domain.scheme import BaseEntity
+from infra.seedwork.domain.scheme import BaseEntity
 
 
 ModelType = TypeVar("ModelType", bound=BasicModel)

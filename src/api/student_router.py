@@ -5,8 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.request_scheme.student_req import CreateStudentReq, UpdateStudentReq
 from api.response_scheme.student_resp import StudentResp
 from domain.course.service import CourseService
-from src.infra.logger import app_logger
-from src.infra.seedwork.repo.async_session import get_session
+from infra.logger import app_logger
+from infra.seedwork.repo.async_session import get_session
 from utils.app_response import ResponseHandler, AppResponse
 
 router = APIRouter(prefix="/user", tags=["users"])

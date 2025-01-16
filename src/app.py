@@ -1,6 +1,5 @@
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
-import asyncio
 import os
 
 import uvicorn
@@ -10,8 +9,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from starlette.responses import JSONResponse
 
-from src.api import api_router
-from src.settings.config import get_settings
+from api import api_router
+from settings.config import get_settings
 from api.middleware import load_middleware
 from utils.app_response import ResponseHandler
 
@@ -63,6 +62,5 @@ fastapi_app = create_app()
 
 
 if __name__ == "__main__":
-    asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
     print(f"项目在http://{config.app['host']}:{config.app['port']}搞起来了....")
     uvicorn.run("app:fastapi_app", host=config.app["host"], port=int(config.app["port"]), log_config=None, reload=False)

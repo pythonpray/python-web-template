@@ -3,7 +3,7 @@ from typing import List, Optional, Type
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.infra.seedwork.repo.repositories import BaseRepo
+from infra.seedwork.repo.repositories import BaseRepo
 from infra.models.course import Course
 
 

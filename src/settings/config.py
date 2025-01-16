@@ -1,4 +1,5 @@
 import os
+import sys
 import pathlib
 from configparser import ConfigParser
 from functools import lru_cache
@@ -7,8 +8,11 @@ from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 
 SRC_DIR = pathlib.Path(__file__).parent.parent
+ROOT_DIR = SRC_DIR.parent
 ENV = os.environ.get("env", "local").lower()
 
+sys.path.append(ROOT_DIR.as_posix())
+sys.path.append(SRC_DIR.as_posix())
 conf_path = os.path.join(SRC_DIR, "settings", f"{ENV}_config.ini")
 
 

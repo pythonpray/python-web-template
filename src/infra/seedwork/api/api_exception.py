@@ -1,7 +1,7 @@
 from typing import Any
 
 from fastapi import HTTPException
-from src.infra.logger import app_logger
+from infra.logger import app_logger
 
 
 class ApiException(HTTPException):

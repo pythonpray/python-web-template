@@ -1,4 +1,4 @@
-from src.infra.logger import app_logger
+from infra.logger import app_logger
 
 
 class OApiHandler:

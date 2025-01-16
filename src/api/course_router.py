@@ -4,10 +4,10 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from domain.course.service import CourseService
-from src.api.request_scheme.student_req import CreateCourseReq
-from src.api.response_scheme.student_resp import CourseResp, StudentResp
-from src.infra.logger import app_logger
-from src.infra.seedwork.repo.async_session import get_session
+from api.request_scheme.student_req import CreateCourseReq
+from api.response_scheme.student_resp import CourseResp, StudentResp
+from infra.logger import app_logger
+from infra.seedwork.repo.async_session import get_session
 from utils.app_response import ResponseHandler, AppResponse
 
 

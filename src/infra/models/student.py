@@ -1,6 +1,7 @@
 from sqlalchemy import Column, String
 
-from infra.seedwork.repo.model_base import BasicModel
+# 需要特别注意的是 这里导入要用from src.xxx导入, 否则alembic检查不到模型变化
+from src.infra.seedwork.repo.model_base import BasicModel
 
 
 class Student(BasicModel):

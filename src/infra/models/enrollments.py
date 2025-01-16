@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 
-from infra.seedwork.repo.model_base import BasicModel
+from src.infra.seedwork.repo.model_base import BasicModel
 
 
 class Enrollment(BasicModel):

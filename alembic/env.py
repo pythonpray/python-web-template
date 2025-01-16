@@ -5,17 +5,12 @@ from sqlalchemy import pool
 
 from alembic import context
 
-import sys
-from pathlib import Path
-
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 # 导入基础模型和所有模型
-from infra.seedwork.repo.model_base import BasicModel
+from src.infra.seedwork.repo.model_base import BasicModel
 from src.settings.config import get_settings
-
-root_path = str(Path(__file__).parent.parent)
-sys.path.append(root_path)
+from src.infra.models import *  # noqa
 
 
 config = context.config

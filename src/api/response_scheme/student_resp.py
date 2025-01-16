@@ -1,4 +1,4 @@
-from src.infra.seedwork.api.api_base_scheme import RespScheme
+from infra.seedwork.api.api_base_scheme import RespScheme
 
 
 class StudentResp(RespScheme):

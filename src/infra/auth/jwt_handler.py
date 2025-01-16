@@ -4,8 +4,8 @@ from typing import Optional
 import jwt
 from fastapi import HTTPException
 
-from src.infra.logger import app_logger
-from src.settings.config import get_settings
+from infra.logger import app_logger
+from settings.config import get_settings
 
 jwt_auth = get_settings().jwt
 

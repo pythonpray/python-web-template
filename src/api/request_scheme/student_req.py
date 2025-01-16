@@ -1,6 +1,6 @@
 from pydantic import Field
 
-from src.infra.seedwork.api.api_base_scheme import RequestScheme
+from infra.seedwork.api.api_base_scheme import RequestScheme
 # 所有的RequestScheme 都用Field加上校验 或者用field_validator 自定义校验,省去了业务代码中的各种判断
 
 

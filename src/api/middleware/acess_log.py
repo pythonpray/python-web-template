@@ -3,7 +3,7 @@ from fastapi import Request
 import json
 import shlex
 
-from src.infra.logger import app_logger
+from infra.logger import app_logger
 
 
 async def request_to_curl(request: Request) -> str:
@@ -38,7 +38,6 @@ class AccessLogMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         # 记录请求信息
         curl_command = await request_to_curl(request)
-        app_logger.info(f"Incoming request: {request.method} {request.url.path}")
         app_logger.info(f"Request as curl: {curl_command}")
 
         response = await call_next(request)
